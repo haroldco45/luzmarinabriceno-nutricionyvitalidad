@@ -20,6 +20,7 @@
     .section-title { font-size: 1.25rem; color: #1e7e34; margin: 0; font-weight: 600; }
     
     .btn-admin { background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; font-weight: bold; }
+    .btn-admin:hover { background: #0056b3; }
     
     .product-list, .payment-list { display: flex; flex-direction: column; gap: 12px; }
     
@@ -81,8 +82,7 @@
       <h2 class="section-title">Catálogo de Productos</h2>
       <button class="btn-admin" onclick="openModal()">⚙️ Administrar</button>
     </div>
-    <div id="product-container" class="product-list">
-      </div>
+    <div id="product-container" class="product-list"></div>
 
     <div class="section-header">
       <h2 class="section-title">🛒 Mi Carrito de Compras</h2>
@@ -130,8 +130,7 @@
     <div class="section-header">
       <h2 class="section-title">Medios de Pago Autorizados</h2>
     </div>
-    <div id="payment-container" class="payment-list">
-      </div>
+    <div id="payment-container" class="payment-list"></div>
   </div>
 
   <div id="adminModal" class="modal">
@@ -151,7 +150,7 @@
         <input type="text" id="cfg-subtitle">
       </div>
       <div class="form-group">
-        <label>WhatsApp Destinatario Pedidos (Código de país sin +, ej: 573118808856)</label>
+        <label>WhatsApp Destinatario (Ej: 573118808856)</label>
         <input type="text" id="cfg-whatsapp">
       </div>
       <div class="form-group">
@@ -173,7 +172,7 @@
         <input type="text" id="prod-desc">
       </div>
       <div class="form-group">
-        <label>Precio Numérico (Solo números sin puntos ni comas, ej: 160000)</label>
+        <label>Precio Numérico (Solo números sin puntos, ej: 160000)</label>
         <input type="number" id="prod-price">
       </div>
       <div class="btn-group">
@@ -239,24 +238,31 @@
       { type: "bancolombia", label: "Bancolombia", details: "Ahorros #: 662 679 82 784\nTitular: Javier Alonso Pérez López\nC.C. 19.274.322" }
     ];
 
-    // CONTROL DE MIGRACIÓN FORZADA (Limpia memorias corruptas viejas)
-    const VERSION_KEY = 'pwa_sys_version_v3';
-    if (!localStorage.getItem(VERSION_KEY)) {
-      localStorage.removeItem('pwa_config');
-      localStorage.removeItem('pwa_products');
-      localStorage.removeItem('pwa_banks');
-      localStorage.setItem(VERSION_KEY, '3.0');
-    }
-
-    if (!localStorage.getItem('pwa_config')) localStorage.setItem('pwa_config', JSON.stringify(defaultConfig));
-    if (!localStorage.getItem('pwa_products')) localStorage.setItem('pwa_products', JSON.stringify(defaultProducts));
-    if (!localStorage.getItem('pwa_banks')) localStorage.setItem('pwa_banks', JSON.stringify(defaultBanks));
-
-    let appConfig = JSON.parse(localStorage.getItem('pwa_config'));
-    let appProducts = JSON.parse(localStorage.getItem('pwa_products'));
-    let appBanks = JSON.parse(localStorage.getItem('pwa_banks'));
-    
+    let appConfig, appProducts, appBanks;
     let cart = {};
+
+    // LIMPIEZA DE SEGURIDAD AUTO-EJECUTABLE
+    function initStorage() {
+      try {
+        let testJson = JSON.parse(localStorage.getItem('pwa_products'));
+        // Si detecta el formato viejo basado en texto libre de precios, fuerza el reset
+        if (testJson && testJson.length > 0 && typeof testJson[0].price === 'string') {
+          throw new Error("Formato viejo detectado");
+        }
+      } catch(err) {
+        localStorage.removeItem('pwa_config');
+        localStorage.removeItem('pwa_products');
+        localStorage.removeItem('pwa_banks');
+      }
+
+      if (!localStorage.getItem('pwa_config')) localStorage.setItem('pwa_config', JSON.stringify(defaultConfig));
+      if (!localStorage.getItem('pwa_products')) localStorage.setItem('pwa_products', JSON.stringify(defaultProducts));
+      if (!localStorage.getItem('pwa_banks')) localStorage.setItem('pwa_banks', JSON.stringify(defaultBanks));
+
+      appConfig = JSON.parse(localStorage.getItem('pwa_config'));
+      appProducts = JSON.parse(localStorage.getItem('pwa_products'));
+      appBanks = JSON.parse(localStorage.getItem('pwa_banks'));
+    }
 
     function formatMoney(value) {
       let numeric = parseInt(value);
@@ -274,7 +280,6 @@
       document.getElementById('cfg-whatsapp').value = appConfig.whatsapp;
       document.getElementById('cfg-email').value = appConfig.email;
 
-      // Pintar catálogo de productos
       const prodContainer = document.getElementById('product-container');
       prodContainer.innerHTML = '';
       appProducts.forEach((prod, index) => {
@@ -299,7 +304,6 @@
         `;
       });
 
-      // Pintar bancos
       const bankContainer = document.getElementById('payment-container');
       bankContainer.innerHTML = '';
       appBanks.forEach((bank, index) => {
@@ -396,12 +400,9 @@
       mensaje += `Por favor confirmame la disponibilidad y el método de despacho. ¡Muchas gracias!`;
 
       const urlText = encodeURIComponent(mensaje);
-      const targetUrl = `https://wa.me/${appConfig.whatsapp}?text=${urlText}`;
-      
-      window.open(targetUrl, '_blank');
+      window.open(`https://wa.me/${appConfig.whatsapp}?text=${urlText}`, '_blank');
     }
 
-    // OPERACIONES DE CONFIGURACIÓN ADMINISTRATIVA
     function saveGeneralConfig() {
       appConfig.title = document.getElementById('cfg-title').value;
       appConfig.subtitle = document.getElementById('cfg-subtitle').value;
@@ -426,3 +427,78 @@
 
       localStorage.setItem('pwa_products', JSON.stringify(appProducts));
       document.getElementById('prod-name').value = '';
+      document.getElementById('prod-desc').value = '';
+      document.getElementById('prod-price').value = '';
+      renderApp();
+    }
+
+    function initEditProduct(index) {
+      const prod = appProducts[index];
+      document.getElementById('prod-name').value = prod.name;
+      document.getElementById('prod-desc').value = prod.desc;
+      document.getElementById('prod-price').value = prod.price;
+      document.getElementById('edit-prod-index').value = index;
+      document.getElementById('form-product-title').innerText = "✏️ Editar Producto";
+      document.getElementById('btn-cancel-prod-edit').style.display = "inline-block";
+      openModal();
+    }
+
+    function cancelProductEdit() {
+      document.getElementById('edit-prod-index').value = "-1";
+      document.getElementById('form-product-title').innerText = "2. Agregar Nuevo Producto";
+      document.getElementById('btn-cancel-prod-edit').style.display = "none";
+    }
+
+    function deleteProduct(index) {
+      if(confirm('¿Eliminar producto?')) { appProducts.splice(index, 1); localStorage.setItem('pwa_products', JSON.stringify(appProducts)); renderApp(); }
+    }
+
+    function saveBank() {
+      const typeSelect = document.getElementById('bank-name').value;
+      const customName = document.getElementById('bank-custom-name').value;
+      const details = document.getElementById('bank-details').value;
+      const editIndex = parseInt(document.getElementById('edit-bank-index').value);
+
+      if(!details) { alert('Detalles de cuenta obligatorios.'); return; }
+      const label = typeSelect === 'otro' ? customName : document.getElementById('bank-name').options[document.getElementById('bank-name').selectedIndex].text;
+      const bankData = { type: typeSelect, label, details };
+
+      if(editIndex === -1) { appBanks.push(bankData); } 
+      else { appBanks[editIndex] = bankData; cancelBankEdit(); }
+
+      localStorage.setItem('pwa_banks', JSON.stringify(appBanks));
+      document.getElementById('bank-custom-name').value = '';
+      document.getElementById('bank-details').value = '';
+      renderApp();
+    }
+
+    function initEditBank(index) {
+      const bank = appBanks[index];
+      document.getElementById('bank-name').value = bank.type;
+      document.getElementById('bank-custom-name').value = bank.type === 'otro' ? bank.label : '';
+      document.getElementById('bank-details').value = bank.details;
+      document.getElementById('edit-bank-index').value = index;
+      document.getElementById('form-bank-title').innerText = "✏️ Editar Cuenta";
+      document.getElementById('btn-cancel-bank-edit').style.display = "inline-block";
+      openModal();
+    }
+
+    function cancelBankEdit() {
+      document.getElementById('edit-bank-index').value = "-1";
+      document.getElementById('form-bank-title').innerText = "3. Agregar/Editar Cuenta de Pago";
+      document.getElementById('btn-cancel-bank-edit').style.display = "none";
+    }
+
+    function deleteBank(index) {
+      if(confirm('¿Eliminar cuenta?')) { appBanks.splice(index, 1); localStorage.setItem('pwa_banks', JSON.stringify(appBanks)); renderApp(); }
+    }
+
+    function openModal() { document.getElementById('adminModal').style.display = 'block'; }
+    function closeModal() { document.getElementById('adminModal').style.display = 'none'; }
+
+    // Inicializar y renderizar de forma segura
+    initStorage();
+    renderApp();
+  </script>
+</body>
+</html>
