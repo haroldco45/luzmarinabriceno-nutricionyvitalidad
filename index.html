@@ -93,4 +93,328 @@
     <div id="payment-container" class="payment-list">
       </div>
 
-    <a id="whatsapp-link" href="#" class="btn-whatsapp
+    <a id="whatsapp-link" href="#" class="btn-whatsapp" target="_blank">
+      💬 Enviar mensaje de WhatsApp
+    </a>
+  </div>
+
+  <div id="adminModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Panel de Configuración (Luz Marina)</h2>
+        <button class="close-modal" onclick="closeModal()">&times;</button>
+      </div>
+      
+      <h3>1. Datos de Contacto y Cabecera</h3>
+      <div class="form-group">
+        <label>Nombre de la Web / Empresa</label>
+        <input type="text" id="cfg-title">
+      </div>
+      <div class="form-group">
+        <label>Eslogan / Subtítulo</label>
+        <input type="text" id="cfg-subtitle">
+      </div>
+      <div class="form-group">
+        <label>Número de WhatsApp (Con código de país, ej: 573118808856)</label>
+        <input type="text" id="cfg-whatsapp">
+      </div>
+      <div class="form-group">
+        <label>Correo Electrónico de Contacto</label>
+        <input type="email" id="cfg-email">
+      </div>
+      <button class="btn-submit" style="background:#007bff; margin-bottom:15px;" onclick="saveGeneralConfig()">Guardar Ajustes Generales</button>
+
+      <div class="admin-section-divider"></div>
+
+      <h3 id="form-product-title">2. Agregar Nuevo Producto</h3>
+      <input type="hidden" id="edit-prod-index" value="-1">
+      <div class="form-group">
+        <label>Nombre del Producto</label>
+        <input type="text" id="prod-name" placeholder="Ej: CELLFOOD">
+      </div>
+      <div class="form-group">
+        <label>Descripción / Tipo</label>
+        <input type="text" id="prod-desc" placeholder="Ej: Suplemento Alimenticio">
+      </div>
+      <div class="form-group">
+        <label>Precio (Texto libre, ej: COP 160,000.00)</label>
+        <input type="text" id="prod-price" placeholder="COP 160,000.00">
+      </div>
+      <div class="btn-group">
+        <button class="btn-submit" onclick="saveProduct()">Guardar Producto</button>
+        <button class="btn-cancel" id="btn-cancel-prod-edit" style="display:none;" onclick="cancelProductEdit()">Cancelar</button>
+      </div>
+
+      <div class="admin-section-divider"></div>
+
+      <h3 id="form-bank-title">3. Agregar/Editar Cuenta de Pago</h3>
+      <input type="hidden" id="edit-bank-index" value="-1">
+      <div class="form-group">
+        <label>Banco o Plataforma</label>
+        <select id="bank-name">
+          <option value="davivienda">Davivienda</option>
+          <option value="daviplata">Daviplata</option>
+          <option value="nequi">Nequi</option>
+          <option value="bancolombia">Bancolombia</option>
+          <option value="otro">Otro Banco / Plataforma</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nombre Personalizado del Banco (Si seleccionó 'Otro')</label>
+        <input type="text" id="bank-custom-name" placeholder="Ej: Banco de Occidente">
+      </div>
+      <div class="form-group">
+        <label>Detalles de la Cuenta (Número, Titular, Cédula)</label>
+        <textarea id="bank-details" placeholder="Ahorros #: 123456...&#10;Titular: Luz Marina Briceño...&#10;C.C. 51.668.410"></textarea>
+      </div>
+      <div class="btn-group">
+        <button class="btn-submit" onclick="saveBank()">Guardar Cuenta</button>
+        <button class="btn-cancel" id="btn-cancel-bank-edit" style="display:none;" onclick="cancelBankEdit()">Cancelar</button>
+      </div>
+
+      <div class="btn-group" style="margin-top: 25px;">
+        <button class="btn-cancel" style="width: 100%; background: #333;" onclick="closeModal()">Cerrar Panel</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p id="footer-text">Contacto: gerencia@oxigenoliquido.com | Tel: +57 311 880 88 56</p>
+    <p class="creditos">&copy; 2026 VIBRAS POSITIVAS HM. Todos los derechos reservados.</p>
+  </footer>
+
+  <script>
+    // DATOS INICIALES POR DEFECTO
+    const defaultConfig = {
+      title: "Oxigenoliquido.com",
+      subtitle: "Bienvenido Salud y Bienestar - Luz Marina Briceño",
+      whatsapp: "573118808856",
+      email: "gerencia@oxigenoliquido.com"
+    };
+
+    const defaultProducts = [
+      { name: "DIVI-HER", desc: "Suplemento Nutricional", price: "COP 110,000.00" },
+      { name: "LIFE DIG", desc: "Suplemento Nutricional", price: "COP 91,600.00" },
+      { name: "MACA LIFE", desc: "Suplemento Nutricional", price: "COP 91,600.00" },
+      { name: "FILTROS WATERFALL", desc: "Agua Alcalina", price: "COP 2,298,000.00" },
+      { name: "SÍLICA", desc: "Suplemento Nutricional", price: "COP 180,000.00" },
+      { name: "CELLFOOD", desc: "Suplemento Alimenticio", price: "COP 160,000.00" },
+      { name: "COLÁGENO HIDROLIZADO (NAÄRA)", desc: "Suplemento Alimenticio", price: "COP 180,000.00" }
+    ];
+
+    const defaultBanks = [
+      { type: "davivienda", label: "Davivienda", details: "Ahorros #: 488 401 301 509\nTitular: Javier Alonso Pérez López\nC.C. 19.274.322" },
+      { type: "daviplata", label: "Daviplata", details: "Ahorros #: 301 704 97 00\nTitular: Luz Marina Briceño Z.\nC.C. 51.668.410" },
+      { type: "nequi", label: "Nequi", details: "Ahorros #: 317 470 77 13\nTitular: Luz Marina Briceño Z.\nC.C. 51.668.410" },
+      { type: "bancolombia", label: "Bancolombia", details: "Ahorros #: 662 679 82 784\nTitular: Javier Alonso Pérez López\nC.C. 19.274.322" }
+    ];
+
+    // INICIALIZACIÓN DE LOCALSTORAGE
+    if (!localStorage.getItem('pwa_config')) localStorage.setItem('pwa_config', JSON.stringify(defaultConfig));
+    if (!localStorage.getItem('pwa_products')) localStorage.setItem('pwa_products', JSON.stringify(defaultProducts));
+    if (!localStorage.getItem('pwa_banks')) localStorage.setItem('pwa_banks', JSON.stringify(defaultBanks));
+
+    let appConfig = JSON.parse(localStorage.getItem('pwa_config'));
+    let appProducts = JSON.parse(localStorage.getItem('pwa_products'));
+    let appBanks = JSON.parse(localStorage.getItem('pwa_banks'));
+
+    // RENDERIZAR VISTAS EN PANTALLA
+    function renderApp() {
+      document.getElementById('header-title').innerText = appConfig.title;
+      document.getElementById('header-subtitle').innerText = appConfig.subtitle;
+      document.getElementById('footer-text').innerHTML = `Contacto: ${appConfig.email} | WhatsApp: +${appConfig.whatsapp}`;
+      document.getElementById('whatsapp-link').href = `https://wa.me/${appConfig.whatsapp}?text=Hola%20Luz%20Marina,%20quiero%20hacer%20un%20pedido`;
+
+      document.getElementById('cfg-title').value = appConfig.title;
+      document.getElementById('cfg-subtitle').value = appConfig.subtitle;
+      document.getElementById('cfg-whatsapp').value = appConfig.whatsapp;
+      document.getElementById('cfg-email').value = appConfig.email;
+
+      // Renderizar productos
+      const prodContainer = document.getElementById('product-container');
+      prodContainer.innerHTML = '';
+      appProducts.forEach((prod, index) => {
+        prodContainer.innerHTML += `
+          <div class="product-card">
+            <div class="product-info">
+              <p class="product-title">${prod.name}</p>
+              <p class="product-desc">${prod.desc}</p>
+              <p class="product-price">${prod.price}</p>
+            </div>
+            <div class="admin-actions">
+              <button class="btn-action-edit" onclick="initEditProduct(${index})">✏️</button>
+              <button class="btn-action-del" onclick="deleteProduct(${index})">❌</button>
+            </div>
+          </div>
+        `;
+      });
+
+      // Renderizar medios de pago
+      const bankContainer = document.getElementById('payment-container');
+      bankContainer.innerHTML = '';
+      appBanks.forEach((bank, index) => {
+        bankContainer.innerHTML += `
+          <div class="payment-card ${bank.type}">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <p class="payment-bank">${bank.label}</p>
+              <div class="admin-actions">
+                <button class="btn-action-edit" onclick="initEditBank(${index})">✏️</button>
+                <button class="btn-action-del" onclick="deleteBank(${index})">❌</button>
+              </div>
+            </div>
+            <p class="payment-details">${bank.details.replace(/\n/g, '<br>')}</p>
+          </div>
+        `;
+      });
+    }
+
+    // ACCIONES GENERALES
+    function saveGeneralConfig() {
+      appConfig.title = document.getElementById('cfg-title').value;
+      appConfig.subtitle = document.getElementById('cfg-subtitle').value;
+      appConfig.whatsapp = document.getElementById('cfg-whatsapp').value;
+      appConfig.email = document.getElementById('cfg-email').value;
+      
+      localStorage.setItem('pwa_config', JSON.stringify(appConfig));
+      renderApp();
+      alert('Ajustes guardados con éxito.');
+    }
+
+    // ACCIONES DE PRODUCTOS
+    function saveProduct() {
+      const name = document.getElementById('prod-name').value;
+      const desc = document.getElementById('prod-desc').value;
+      const price = document.getElementById('prod-price').value;
+      const editIndex = parseInt(document.getElementById('edit-prod-index').value);
+
+      if(!name || !price) { alert('Nombre y precio requeridos.'); return; }
+      const productData = { name, desc, price };
+
+      if(editIndex === -1) {
+        appProducts.push(productData);
+      } else {
+        appProducts[editIndex] = productData;
+        cancelProductEdit();
+      }
+
+      localStorage.setItem('pwa_products', JSON.stringify(appProducts));
+      document.getElementById('prod-name').value = '';
+      document.getElementById('prod-desc').value = '';
+      document.getElementById('prod-price').value = '';
+      renderApp();
+    }
+
+    function initEditProduct(index) {
+      const prod = appProducts[index];
+      document.getElementById('prod-name').value = prod.name;
+      document.getElementById('prod-desc').value = prod.desc;
+      document.getElementById('prod-price').value = prod.price;
+      document.getElementById('edit-prod-index').value = index;
+      
+      document.getElementById('form-product-title').innerText = "✏️ Editar Producto";
+      document.getElementById('btn-cancel-prod-edit').style.display = "inline-block";
+      openModal();
+    }
+
+    function cancelProductEdit() {
+      document.getElementById('edit-prod-index').value = "-1";
+      document.getElementById('form-product-title').innerText = "2. Agregar Nuevo Producto";
+      document.getElementById('btn-cancel-prod-edit').style.display = "none";
+      document.getElementById('prod-name').value = '';
+      document.getElementById('prod-desc').value = '';
+      document.getElementById('prod-price').value = '';
+    }
+
+    function deleteProduct(index) {
+      if(confirm('¿Deseas eliminar este producto?')) {
+        appProducts.splice(index, 1);
+        localStorage.setItem('pwa_products', JSON.stringify(appProducts));
+        renderApp();
+      }
+    }
+
+    // ACCIONES DE BANCOS
+    function saveBank() {
+      const typeSelect = document.getElementById('bank-name').value;
+      const customName = document.getElementById('bank-custom-name').value;
+      const details = document.getElementById('bank-details').value;
+      const editIndex = parseInt(document.getElementById('edit-bank-index').value);
+
+      if(!details) { alert('Detalles obligatorios.'); return; }
+      const label = typeSelect === 'otro' ? customName : document.getElementById('bank-name').options[document.getElementById('bank-name').selectedIndex].text;
+      const bankData = { type: typeSelect, label, details };
+
+      if(editIndex === -1) {
+        appBanks.push(bankData);
+      } else {
+        appBanks[editIndex] = bankData;
+        cancelBankEdit();
+      }
+
+      localStorage.setItem('pwa_banks', JSON.stringify(appBanks));
+      document.getElementById('bank-custom-name').value = '';
+      document.getElementById('bank-details').value = '';
+      renderApp();
+    }
+
+    function initEditBank(index) {
+      const bank = appBanks[index];
+      document.getElementById('bank-name').value = bank.type;
+      document.getElementById('bank-custom-name').value = bank.type === 'otro' ? bank.label : '';
+      document.getElementById('bank-details').value = bank.details;
+      document.getElementById('edit-bank-index').value = index;
+
+      document.getElementById('form-bank-title').innerText = "✏️ Editar Cuenta de Pago";
+      document.getElementById('btn-cancel-bank-edit').style.display = "inline-block";
+      openModal();
+    }
+
+    function cancelBankEdit() {
+      document.getElementById('edit-bank-index').value = "-1";
+      document.getElementById('form-bank-title').innerText = "3. Agregar/Editar Cuenta de Pago";
+      document.getElementById('btn-cancel-bank-edit').style.display = "none";
+      document.getElementById('bank-custom-name').value = '';
+      document.getElementById('bank-details').value = '';
+    }
+
+    function deleteBank(index) {
+      if(confirm('¿Deseas eliminar esta cuenta bancaria?')) {
+        appBanks.splice(index, 1);
+        localStorage.setItem('pwa_banks', JSON.stringify(appBanks));
+        renderApp();
+      }
+    }
+
+    // CONTROLES MODALES
+    function openModal() { document.getElementById('adminModal').style.display = 'block'; }
+    function closeModal() { document.getElementById('adminModal').style.display = 'none'; }
+
+    // DETECTOR DE INSTALACIÓN PWA
+    let deferredPrompt;
+    const installBtn = document.getElementById('installApp');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
+    });
+    installBtn.addEventListener('click', () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choice) => {
+          if (choice.outcome === 'accepted') installBtn.style.display = 'none';
+          deferredPrompt = null;
+        });
+      }
+    });
+
+    // Registrar Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log(err));
+      });
+    }
+
+    renderApp();
+  </script>
+</body>
+</html>
