@@ -8,21 +8,18 @@
   <meta name="theme-color" content="#25D366">
   <style>
     *, *::before, *::after { box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; padding-bottom: 40px; }
     
-    header { background: linear-gradient(135deg, #1e7e34, #25D366); color: white; padding: 25px 15px; text-align: center; position: relative; }
+    header { background: linear-gradient(135deg, #1e7e34, #25D366); color: white; padding: 25px 15px; text-align: center; }
     header h1 { margin: 0; font-size: 1.7rem; font-weight: 700; }
     header p { margin: 6px 0 0; font-size: 0.95rem; opacity: 0.95; }
     
-    .container { max-width: 600px; margin: 0 auto; padding: 15px; padding-bottom: 80px; }
-    
-    .btn-install { display: none; background: #ffc107; color: #000; text-align: center; padding: 12px; margin-bottom: 20px; font-weight: bold; border-radius: 8px; cursor: pointer; border: none; width: 100%; font-size: 0.95rem; }
+    .container { max-width: 600px; margin: 0 auto; padding: 15px; }
     
     .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #25D366; padding-bottom: 6px; margin-top: 25px; margin-bottom: 15px; }
     .section-title { font-size: 1.25rem; color: #1e7e34; margin: 0; font-weight: 600; }
     
     .btn-admin { background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; font-weight: bold; }
-    .btn-admin:hover { background: #0056b3; }
     
     .product-list, .payment-list { display: flex; flex-direction: column; gap: 12px; }
     
@@ -32,41 +29,45 @@
     .product-desc { font-size: 0.85rem; color: #666; margin: 4px 0; }
     .product-price { font-weight: 700; color: #1e7e34; font-size: 1rem; margin: 0; }
     
-    .payment-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #6c757d; border-top: 1px solid #eef2f1; border-right: 1px solid #eef2f1; border-bottom: 1px solid #eef2f1; }
+    .qty-controls { display: flex; align-items: center; gap: 8px; margin-left: 10px; }
+    .btn-qty { background: #e2e8f0; border: none; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; cursor: pointer; font-size: 1rem; }
+    .btn-qty:hover { background: #cbd5e1; }
+    .qty-val { font-weight: bold; width: 20px; text-align: center; }
+
+    /* SECCIÓN RESUMEN DE COMPRA Y FORMULARIO */
+    .cart-box, .checkout-box { background: white; padding: 18px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-top: 15px; }
+    .cart-item-row { display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px dashed #eee; }
+    .total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem; color: #1e7e34; margin-top: 10px; padding-top: 10px; border-top: 2px solid #eee; }
+    
+    .form-group { display: block; margin-bottom: 12px; }
+    label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; color: #4a5568; }
+    input, textarea, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-family: inherit; }
+    textarea { resize: vertical; height: 60px; }
+    
+    .btn-whatsapp { display: block; background-color: #25D366; color: white; text-align: center; padding: 14px; border-radius: 30px; font-weight: bold; text-decoration: none; margin: 20px 0; box-shadow: 0 4px 10px rgba(37,211,102,0.3); font-size: 1.05rem; border: none; width: 100%; cursor: pointer; }
+    .btn-whatsapp:hover { background-color: #1ebd58; }
+    
+    .payment-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #6c757d; }
     .payment-card.davivienda { border-left-color: #ed1c24; }
     .payment-card.nequi { border-left-color: #7000ff; }
     .payment-card.bancolombia { border-left-color: #fecb2f; }
     .payment-card.daviplata { border-left-color: #ef4123; }
-    .payment-bank { font-weight: bold; font-size: 1.1rem; margin: 0 0 6px 0; color: #111; }
-    .payment-details { font-size: 0.9rem; line-height: 1.5; margin: 0; color: #444; }
+    .payment-bank { font-weight: bold; font-size: 1.1rem; margin: 0 0 6px 0; }
+    .payment-details { font-size: 0.9rem; line-height: 1.5; margin: 0; }
     
-    .btn-whatsapp { display: block; background-color: #25D366; color: white; text-align: center; padding: 14px; border-radius: 30px; font-weight: bold; text-decoration: none; margin: 25px 0; box-shadow: 0 4px 10px rgba(37,211,102,0.3); font-size: 1.05rem; }
-    .btn-whatsapp:hover { background-color: #1ebd58; }
-    
-    /* MODAL / PANEL DE ADMINISTRACIÓN */
+    /* MODAL DE ADMINISTRACIÓN */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; overflow-y: auto; padding: 15px; }
-    .modal-content { background: white; max-width: 550px; margin: 30px auto; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    .modal-content { background: white; max-width: 550px; margin: 30px auto; padding: 20px; border-radius: 12px; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
-    .modal-header h2 { margin: 0; font-size: 1.3rem; color: #333; }
     .close-modal { font-size: 1.5rem; cursor: pointer; border: none; background: none; color: #999; }
-    
-    .form-group { display: block; margin-bottom: 12px; }
-    label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; color: #557; }
-    input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem; font-family: inherit; }
-    textarea { resize: vertical; height: 60px; }
-    
-    .btn-group { display: flex; gap: 10px; margin-top: 15px; }
     .btn-submit { background: #25D366; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; }
-    .btn-submit:hover { background: #1ebd58; }
     .btn-cancel { background: #6c757d; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    
-    .admin-actions { display: flex; gap: 8px; margin-left: 10px; }
-    .btn-action-del { background: #dc3545; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
-    .btn-action-edit { background: #ffc107; color: black; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
-    
+    .admin-actions { display: flex; gap: 6px; margin-left: 10px; }
+    .btn-action-del { background: #dc3545; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; }
+    .btn-action-edit { background: #ffc107; color: black; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; }
     .admin-section-divider { margin: 25px 0 15px 0; border-top: 2px dashed #eee; padding-top: 15px; }
     
-    footer { text-align: center; padding: 25px 15px; font-size: 0.8rem; color: #777; background: #e9ecef; border-top: 1px solid #dee2e6; }
+    footer { text-align: center; padding: 25px 15px; font-size: 0.8rem; color: #777; background: #e9ecef; border-top: 1px solid #dee2e6; margin-top: 40px; }
     .creditos { font-weight: bold; color: #555; margin-top: 5px; }
   </style>
 </head>
@@ -78,8 +79,6 @@
   </header>
 
   <div class="container">
-    <button id="installApp" class="btn-install">📥 Instalar Aplicación en Celular / PC</button>
-
     <div class="section-header">
       <h2 class="section-title">Catálogo de Productos</h2>
       <button class="btn-admin" onclick="openModal()">⚙️ Administrar</button>
@@ -88,20 +87,59 @@
       </div>
 
     <div class="section-header">
+      <h2 class="section-title">🛒 Mi Carrito de Compras</h2>
+    </div>
+    <div class="cart-box">
+      <div id="cart-items-container">
+        <p style="color:#777; font-size:0.9rem; margin:0; text-align:center;">El carrito está vacío. Agrega productos arriba.</p>
+      </div>
+      <div class="total-row">
+        <span>TOTAL ESTIMADO:</span>
+        <span id="cart-total-val">$0</span>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2 class="section-title">📋 Datos para el Envío y Entrega</h2>
+    </div>
+    <div class="checkout-box">
+      <div class="form-group">
+        <label>Nombre y Apellido completo *</label>
+        <input type="text" id="cust-name" placeholder="Ej: Juan Pérez">
+      </div>
+      <div class="form-group">
+        <label>Número de Teléfono / Celular *</label>
+        <input type="tel" id="cust-phone" placeholder="Ej: 3101234567">
+      </div>
+      <div class="form-group">
+        <label>Dirección de Entrega Completa *</label>
+        <input type="text" id="cust-address" placeholder="Ej: Calle 10 #20-30, Barrio Centro">
+      </div>
+      <div class="form-group">
+        <label>Ciudad / Municipio *</label>
+        <input type="text" id="cust-city" placeholder="Ej: Caucasia">
+      </div>
+      <div class="form-group">
+        <label>Notas adicionales o indicaciones del pedido (Opcional)</label>
+        <textarea id="cust-notes" placeholder="Ej: Dejar en portería, llamar antes de salir..."></textarea>
+      </div>
+
+      <button class="btn-whatsapp" onclick="enviarPedidoWhatsApp()">
+        🚀 Confirmar y Enviar Pedido a WhatsApp
+      </button>
+    </div>
+
+    <div class="section-header">
       <h2 class="section-title">Medios de Pago Autorizados</h2>
     </div>
     <div id="payment-container" class="payment-list">
       </div>
-
-    <a id="whatsapp-link" href="#" class="btn-whatsapp" target="_blank">
-      💬 Enviar mensaje de WhatsApp
-    </a>
   </div>
 
   <div id="adminModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>Panel de Configuración (Luz Marina)</h2>
+        <h2 style="margin:0; font-size:1.2rem;">Panel de Configuración (Luz Marina)</h2>
         <button class="close-modal" onclick="closeModal()">&times;</button>
       </div>
       
@@ -115,11 +153,11 @@
         <input type="text" id="cfg-subtitle">
       </div>
       <div class="form-group">
-        <label>Número de WhatsApp (Con código de país, ej: 573118808856)</label>
+        <label>WhatsApp Destinatario Pedidos (Código de país sin +, ej: 573118808856)</label>
         <input type="text" id="cfg-whatsapp">
       </div>
       <div class="form-group">
-        <label>Correo Electrónico de Contacto</label>
+        <label>Correo Electrónico</label>
         <input type="email" id="cfg-email">
       </div>
       <button class="btn-submit" style="background:#007bff; margin-bottom:15px;" onclick="saveGeneralConfig()">Guardar Ajustes Generales</button>
@@ -130,15 +168,15 @@
       <input type="hidden" id="edit-prod-index" value="-1">
       <div class="form-group">
         <label>Nombre del Producto</label>
-        <input type="text" id="prod-name" placeholder="Ej: CELLFOOD">
+        <input type="text" id="prod-name">
       </div>
       <div class="form-group">
         <label>Descripción / Tipo</label>
-        <input type="text" id="prod-desc" placeholder="Ej: Suplemento Alimenticio">
+        <input type="text" id="prod-desc">
       </div>
       <div class="form-group">
-        <label>Precio (Texto libre, ej: COP 160,000.00)</label>
-        <input type="text" id="prod-price" placeholder="COP 160,000.00">
+        <label>Precio Numérico (Solo números sin puntos ni comas, ej: 160000)</label>
+        <input type="number" id="prod-price">
       </div>
       <div class="btn-group">
         <button class="btn-submit" onclick="saveProduct()">Guardar Producto</button>
@@ -156,16 +194,16 @@
           <option value="daviplata">Daviplata</option>
           <option value="nequi">Nequi</option>
           <option value="bancolombia">Bancolombia</option>
-          <option value="otro">Otro Banco / Plataforma</option>
+          <option value="otro">Otro</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Nombre Personalizado del Banco (Si seleccionó 'Otro')</label>
-        <input type="text" id="bank-custom-name" placeholder="Ej: Banco de Occidente">
+        <label>Nombre Personalizado del Banco</label>
+        <input type="text" id="bank-custom-name">
       </div>
       <div class="form-group">
-        <label>Detalles de la Cuenta (Número, Titular, Cédula)</label>
-        <textarea id="bank-details" placeholder="Ahorros #: 123456...&#10;Titular: Luz Marina Briceño...&#10;C.C. 51.668.410"></textarea>
+        <label>Detalles de la Cuenta</label>
+        <textarea id="bank-details"></textarea>
       </div>
       <div class="btn-group">
         <button class="btn-submit" onclick="saveBank()">Guardar Cuenta</button>
@@ -179,27 +217,21 @@
   </div>
 
   <footer>
-    <p id="footer-text">Contacto: gerencia@oxigenoliquido.com | Tel: +57 311 880 88 56</p>
+    <p id="footer-text"></p>
     <p class="creditos">&copy; 2026 VIBRAS POSITIVAS HM. Todos los derechos reservados.</p>
   </footer>
 
   <script>
-    // DATOS INICIALES POR DEFECTO
-    const defaultConfig = {
-      title: "Oxigenoliquido.com",
-      subtitle: "Bienvenido Salud y Bienestar - Luz Marina Briceño",
-      whatsapp: "573118808856",
-      email: "gerencia@oxigenoliquido.com"
-    };
-
+    const defaultConfig = { title: "Oxigenoliquido.com", subtitle: "Bienvenido Salud y Bienestar - Luz Marina Briceño", whatsapp: "573118808856", email: "gerencia@oxigenoliquido.com" };
+    
     const defaultProducts = [
-      { name: "DIVI-HER", desc: "Suplemento Nutricional", price: "COP 110,000.00" },
-      { name: "LIFE DIG", desc: "Suplemento Nutricional", price: "COP 91,600.00" },
-      { name: "MACA LIFE", desc: "Suplemento Nutricional", price: "COP 91,600.00" },
-      { name: "FILTROS WATERFALL", desc: "Agua Alcalina", price: "COP 2,298,000.00" },
-      { name: "SÍLICA", desc: "Suplemento Nutricional", price: "COP 180,000.00" },
-      { name: "CELLFOOD", desc: "Suplemento Alimenticio", price: "COP 160,000.00" },
-      { name: "COLÁGENO HIDROLIZADO (NAÄRA)", desc: "Suplemento Alimenticio", price: "COP 180,000.00" }
+      { name: "DIVI-HER", desc: "Suplemento Nutricional", price: 110000 },
+      { name: "LIFE DIG", desc: "Suplemento Nutricional", price: 91600 },
+      { name: "MACA LIFE", desc: "Suplemento Nutricional", price: 91600 },
+      { name: "FILTROS WATERFALL", desc: "Agua Alcalina", price: 2298000 },
+      { name: "SÍLICA", desc: "Suplemento Nutricional", price: 180000 },
+      { name: "CELLFOOD", desc: "Suplemento Alimenticio", price: 160000 },
+      { name: "COLÁGENO HIDROLIZADO (NAÄRA)", desc: "Suplemento Alimenticio", price: 180000 }
     ];
 
     const defaultBanks = [
@@ -209,7 +241,6 @@
       { type: "bancolombia", label: "Bancolombia", details: "Ahorros #: 662 679 82 784\nTitular: Javier Alonso Pérez López\nC.C. 19.274.322" }
     ];
 
-    // INICIALIZACIÓN DE LOCALSTORAGE
     if (!localStorage.getItem('pwa_config')) localStorage.setItem('pwa_config', JSON.stringify(defaultConfig));
     if (!localStorage.getItem('pwa_products')) localStorage.setItem('pwa_products', JSON.stringify(defaultProducts));
     if (!localStorage.getItem('pwa_banks')) localStorage.setItem('pwa_banks', JSON.stringify(defaultBanks));
@@ -217,29 +248,39 @@
     let appConfig = JSON.parse(localStorage.getItem('pwa_config'));
     let appProducts = JSON.parse(localStorage.getItem('pwa_products'));
     let appBanks = JSON.parse(localStorage.getItem('pwa_banks'));
+    
+    let cart = {};
 
-    // RENDERIZAR VISTAS EN PANTALLA
+    function formatMoney(value) {
+      return "COP " + parseInt(value).toLocaleString('es-CO');
+    }
+
     function renderApp() {
       document.getElementById('header-title').innerText = appConfig.title;
       document.getElementById('header-subtitle').innerText = appConfig.subtitle;
-      document.getElementById('footer-text').innerHTML = `Contacto: ${appConfig.email} | WhatsApp: +${appConfig.whatsapp}`;
-      document.getElementById('whatsapp-link').href = `https://wa.me/${appConfig.whatsapp}?text=Hola%20Luz%20Marina,%20quiero%20hacer%20un%20pedido`;
+      document.getElementById('footer-text').innerText = `Contacto: ${appConfig.email} | WhatsApp: +${appConfig.whatsapp}`;
 
       document.getElementById('cfg-title').value = appConfig.title;
       document.getElementById('cfg-subtitle').value = appConfig.subtitle;
       document.getElementById('cfg-whatsapp').value = appConfig.whatsapp;
       document.getElementById('cfg-email').value = appConfig.email;
 
-      // Renderizar productos
+      // Pintar catálogo
       const prodContainer = document.getElementById('product-container');
       prodContainer.innerHTML = '';
       appProducts.forEach((prod, index) => {
+        const currentQty = cart[index] || 0;
         prodContainer.innerHTML += `
           <div class="product-card">
             <div class="product-info">
               <p class="product-title">${prod.name}</p>
               <p class="product-desc">${prod.desc}</p>
-              <p class="product-price">${prod.price}</p>
+              <p class="product-price">${formatMoney(prod.price)}</p>
+            </div>
+            <div class="qty-controls">
+              <button class="btn-qty" onclick="changeQty(${index}, -1)">-</button>
+              <span class="qty-val">${currentQty}</span>
+              <button class="btn-qty" onclick="changeQty(${index}, 1)">+</button>
             </div>
             <div class="admin-actions">
               <button class="btn-action-edit" onclick="initEditProduct(${index})">✏️</button>
@@ -249,7 +290,7 @@
         `;
       });
 
-      // Renderizar medios de pago
+      // Pintar bancos
       const bankContainer = document.getElementById('payment-container');
       bankContainer.innerHTML = '';
       appBanks.forEach((bank, index) => {
@@ -266,155 +307,67 @@
           </div>
         `;
       });
+
+      updateCartUI();
     }
 
-    // ACCIONES GENERALES
-    function saveGeneralConfig() {
-      appConfig.title = document.getElementById('cfg-title').value;
-      appConfig.subtitle = document.getElementById('cfg-subtitle').value;
-      appConfig.whatsapp = document.getElementById('cfg-whatsapp').value;
-      appConfig.email = document.getElementById('cfg-email').value;
-      
-      localStorage.setItem('pwa_config', JSON.stringify(appConfig));
-      renderApp();
-      alert('Ajustes guardados con éxito.');
-    }
-
-    // ACCIONES DE PRODUCTOS
-    function saveProduct() {
-      const name = document.getElementById('prod-name').value;
-      const desc = document.getElementById('prod-desc').value;
-      const price = document.getElementById('prod-price').value;
-      const editIndex = parseInt(document.getElementById('edit-prod-index').value);
-
-      if(!name || !price) { alert('Nombre y precio requeridos.'); return; }
-      const productData = { name, desc, price };
-
-      if(editIndex === -1) {
-        appProducts.push(productData);
+    function changeQty(index, delta) {
+      const currentQty = cart[index] || 0;
+      const newQty = currentQty + delta;
+      if (newQty <= 0) {
+        delete cart[index];
       } else {
-        appProducts[editIndex] = productData;
-        cancelProductEdit();
+        cart[index] = newQty;
       }
-
-      localStorage.setItem('pwa_products', JSON.stringify(appProducts));
-      document.getElementById('prod-name').value = '';
-      document.getElementById('prod-desc').value = '';
-      document.getElementById('prod-price').value = '';
       renderApp();
     }
 
-    function initEditProduct(index) {
-      const prod = appProducts[index];
-      document.getElementById('prod-name').value = prod.name;
-      document.getElementById('prod-desc').value = prod.desc;
-      document.getElementById('prod-price').value = prod.price;
-      document.getElementById('edit-prod-index').value = index;
-      
-      document.getElementById('form-product-title').innerText = "✏️ Editar Producto";
-      document.getElementById('btn-cancel-prod-edit').style.display = "inline-block";
-      openModal();
-    }
+    function updateCartUI() {
+      const cartItemsContainer = document.getElementById('cart-items-container');
+      let total = 0;
+      let hasItems = false;
+      cartItemsContainer.innerHTML = '';
 
-    function cancelProductEdit() {
-      document.getElementById('edit-prod-index').value = "-1";
-      document.getElementById('form-product-title').innerText = "2. Agregar Nuevo Producto";
-      document.getElementById('btn-cancel-prod-edit').style.display = "none";
-      document.getElementById('prod-name').value = '';
-      document.getElementById('prod-desc').value = '';
-      document.getElementById('prod-price').value = '';
-    }
+      for (let index in cart) {
+        hasItems = true;
+        const prod = appProducts[index];
+        const qty = cart[index];
+        const subtotal = prod.price * qty;
+        total += subtotal;
 
-    function deleteProduct(index) {
-      if(confirm('¿Deseas eliminar este producto?')) {
-        appProducts.splice(index, 1);
-        localStorage.setItem('pwa_products', JSON.stringify(appProducts));
-        renderApp();
-      }
-    }
-
-    // ACCIONES DE BANCOS
-    function saveBank() {
-      const typeSelect = document.getElementById('bank-name').value;
-      const customName = document.getElementById('bank-custom-name').value;
-      const details = document.getElementById('bank-details').value;
-      const editIndex = parseInt(document.getElementById('edit-bank-index').value);
-
-      if(!details) { alert('Detalles obligatorios.'); return; }
-      const label = typeSelect === 'otro' ? customName : document.getElementById('bank-name').options[document.getElementById('bank-name').selectedIndex].text;
-      const bankData = { type: typeSelect, label, details };
-
-      if(editIndex === -1) {
-        appBanks.push(bankData);
-      } else {
-        appBanks[editIndex] = bankData;
-        cancelBankEdit();
+        cartItemsContainer.innerHTML += `
+          <div class="cart-item-row">
+            <span>${prod.name} (x${qty})</span>
+            <span>${formatMoney(subtotal)}</span>
+          </div>
+        `;
       }
 
-      localStorage.setItem('pwa_banks', JSON.stringify(appBanks));
-      document.getElementById('bank-custom-name').value = '';
-      document.getElementById('bank-details').value = '';
-      renderApp();
-    }
-
-    function initEditBank(index) {
-      const bank = appBanks[index];
-      document.getElementById('bank-name').value = bank.type;
-      document.getElementById('bank-custom-name').value = bank.type === 'otro' ? bank.label : '';
-      document.getElementById('bank-details').value = bank.details;
-      document.getElementById('edit-bank-index').value = index;
-
-      document.getElementById('form-bank-title').innerText = "✏️ Editar Cuenta de Pago";
-      document.getElementById('btn-cancel-bank-edit').style.display = "inline-block";
-      openModal();
-    }
-
-    function cancelBankEdit() {
-      document.getElementById('edit-bank-index').value = "-1";
-      document.getElementById('form-bank-title').innerText = "3. Agregar/Editar Cuenta de Pago";
-      document.getElementById('btn-cancel-bank-edit').style.display = "none";
-      document.getElementById('bank-custom-name').value = '';
-      document.getElementById('bank-details').value = '';
-    }
-
-    function deleteBank(index) {
-      if(confirm('¿Deseas eliminar esta cuenta bancaria?')) {
-        appBanks.splice(index, 1);
-        localStorage.setItem('pwa_banks', JSON.stringify(appBanks));
-        renderApp();
+      if (!hasItems) {
+        cartItemsContainer.innerHTML = '<p style="color:#777; font-size:0.9rem; margin:0; text-align:center;">El carrito está vacío. Agrega productos arriba.</p>';
       }
+
+      document.getElementById('cart-total-val').innerText = formatMoney(total);
     }
 
-    // CONTROLES MODALES
-    function openModal() { document.getElementById('adminModal').style.display = 'block'; }
-    function closeModal() { document.getElementById('adminModal').style.display = 'none'; }
+    function enviarPedidoWhatsApp() {
+      const custName = document.getElementById('cust-name').value.trim();
+      const custPhone = document.getElementById('cust-phone').value.trim();
+      const custAddress = document.getElementById('cust-address').value.trim();
+      const custCity = document.getElementById('cust-city').value.trim();
+      const custNotes = document.getElementById('cust-notes').value.trim();
 
-    // DETECTOR DE INSTALACIÓN PWA
-    let deferredPrompt;
-    const installBtn = document.getElementById('installApp');
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.style.display = 'block';
-    });
-    installBtn.addEventListener('click', () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choice) => {
-          if (choice.outcome === 'accepted') installBtn.style.display = 'none';
-          deferredPrompt = null;
-        });
-      }
-    });
+      // Validaciones básicas
+      let hasItems = Object.keys(cart).length > 0;
+      if (!hasItems) { alert('Por favor, añade al menos un producto al carrito.'); return; }
+      if (!custName || !custPhone || !custAddress || !custCity) { alert('Por favor, rellena todos los campos obligatorios (*).'); return; }
 
-    // Registrar Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(err => console.log(err));
-      });
-    }
-
-    renderApp();
-  </script>
-</body>
-</html>
+      // Construir mensaje estructurado
+      let mensaje = `Nuevo Pedido - Oxigenoliquido.com\n`;
+      mensaje += `=========================\n\n`;
+      mensaje += `👤 CLIENTE: ${custName}\n`;
+      mensaje += `📞 TELÉFONO: ${custPhone}\n`;
+      mensaje += `📍 DIRECCIÓN: ${custAddress}\n`;
+      mensaje += `🏙️ CIUDAD: ${custCity}\n`;
+      if(custNotes) mensaje += `📝 NOTAS: ${custNotes}\n`;
+      mensaje += `\n🛒 PRODUCTOS SOLICITADOS:\n`;
